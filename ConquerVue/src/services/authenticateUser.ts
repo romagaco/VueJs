@@ -1,14 +1,14 @@
-import axios from 'axios'
+import apiClient from '../interceptors/axios'
 
 export const login = (email: string, password: string) => {
-  return axios.post('/login', {
+  return apiClient.post('/login', {
     email,
     password,
   })
 }
 
 export const register = (email: string, password: string) => {
-  return axios.post('/register', {
+  return apiClient.post('/register', {
     email,
     password,
   })
