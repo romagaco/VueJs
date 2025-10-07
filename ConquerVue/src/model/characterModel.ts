@@ -3,3 +3,9 @@ export interface Character {
   lastName: string
   id: number
 }
+
+export const EmptyCharacter: character = {
+  name: "",
+  lastname: "",
+  id: 0,
+}

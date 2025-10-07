@@ -7,64 +7,70 @@
       :error="formData.email.error"
       required
     />
-
     <InputElement
       v-model="formData.password.value"
       type="password"
-      placeHolder="password"
+      placeHolder="Password"
       :error="formData.password.error"
       required
     />
+
     <button type="submit">Login</button>
   </form>
 </template>
 
 <script lang="ts" setup>
+import InputElement from "../../components/InputElement.vue"
+import { login } from '../../services/authenticateUser'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import InputElement from '../../components/inputElement.vue'
 import { z } from 'zod'
-import { forEachChild } from 'typescript'
+
+const loginSchema = z.object({
+  email: z.string().email({ message: 'Invalid email adress' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
+})
 
 const formData = ref({
   email: {
     value: '',
     error: '',
   },
-
   password: {
     value: '',
     error: '',
   },
 })
 
-const loginSchema = z.object({
-  email: z.string().email({ message: 'invalid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters long ' }),
-})
-
 const router = useRouter()
 
 const handleLogin = async () => {
-  Object.keys(formData.value).forEach((key) =>
-formData.value[key as keyof typeof formData.value].error= ""
-)
-  const result = loginSchema.safeParse({
-    email: formData.value.email.value,
-    password: formData.value.password.value,
-  })
-  if (!result.success) {
-    result.error.errors.forEach(e) => {
-      const field = e.path[0] as keyof typeof formData.value
+  try {
+    Object.keys(formData.value).forEach((key) => {
+      formData.value[key as keyof typeof formData.value].error = ''
+    })
 
-      if (formData.value[field]) {
-        formData.value[field].error = e.message
-      }
-     })
+    const result = loginSchema.safeParse({
+      email: formData.value.email.value,
+      password: formData.value.password.value,
+    })
+
+    if (!result.success) {
+      result.error.errors.forEach((e) => {
+        const field = e.path[0] as keyof typeof formData.value
+
+        if (formData.value[field]) {
+          formData.value[field].error = e.message
+        }
+      })
+    }
+
+    await login(formData.value['email'].value, formData.value['password'].value)
+
+    router.push('/characters')
+  } catch (err) {
+    console.error('Error logging in', err)
   }
-
-  router.push("/characters")
 }
 </script>
-
-<style lang="sass" module></style>
+<style></style>
